@@ -1,1 +1,7 @@
 project_id = "fojuaucockkfijawlhtr"
+
+[functions.ballet-ai]
+verify_jwt = false
+
+[functions.ballet-search]
+verify_jwt = false
