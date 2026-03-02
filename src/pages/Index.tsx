@@ -22,6 +22,8 @@ function createInitialData(): AppData {
       input: t === "플리에" ? "(1번발)\n(2번발)\n(4번발)\n(5번발)" : "",
       steps: [],
       loading: false,
+      timeSignature: '4/4' as const,
+      correction: '',
     })),
     center: initCenterTitles.map(t => ({
       id: genId(),
@@ -29,6 +31,8 @@ function createInitialData(): AppData {
       input: "",
       steps: [],
       loading: false,
+      timeSignature: t === "왈츠" ? '3/4' as const : '4/4' as const,
+      correction: '',
     })),
   };
 }
@@ -119,6 +123,8 @@ const Index = () => {
         input: "",
         steps: [],
         loading: false,
+        timeSignature: '4/4' as const,
+        correction: '',
       }]
     }));
   };

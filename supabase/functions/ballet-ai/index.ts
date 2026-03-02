@@ -18,8 +18,9 @@ serve(async (req) => {
     - 'pose': 직접 언급된 발 번호(1~5번발)만 기록.
     - 'is_outbeat': 동작 바로 앞에 '&' 기호가 있는 경우 true.
     - 'duration': 명시된 횟수나 일반적인 발레 박자를 따름.
+    - 'direction': '크로아제', '에파세', '앙파스', '에카르떼' 등 몸 방향이 언급된 경우 해당 한국어 명칭을 기록. 없으면 null.
     - 섹션 제목: "${sectionTitle}"
-    JSON 구조: [{"term_kr":"명칭", "term_fr":"French", "start_beat":1, "duration":1, "side": "방향"|null, "pose": "발포지션"|null, "is_outbeat": boolean}]`;
+    JSON 구조: [{"term_kr":"명칭", "term_fr":"French", "start_beat":1, "duration":1, "side": "방향"|null, "pose": "발포지션"|null, "is_outbeat": boolean, "direction": "몸방향"|null}]`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -54,6 +55,7 @@ serve(async (req) => {
                         side: { type: "string", nullable: true },
                         pose: { type: "string", nullable: true },
                         is_outbeat: { type: "boolean" },
+                        direction: { type: "string", nullable: true },
                       },
                       required: ["term_kr", "term_fr", "start_beat", "duration", "is_outbeat"],
                     },
