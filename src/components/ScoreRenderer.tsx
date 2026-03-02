@@ -164,7 +164,7 @@ export default function ScoreRenderer({ appData, langMode, onDurationChange }: S
             <Info size={24} className="opacity-50" />
           </div>
           <p className="text-sm font-bold tracking-tight">
-            분석된 시퀀스가 없습니다. 왼쪽에서 입력을 시작하세요.
+            왼쪽 입력칸에 발레 순서를 적고 Update를 눌러보세요 🩰
           </p>
         </div>
       )}
