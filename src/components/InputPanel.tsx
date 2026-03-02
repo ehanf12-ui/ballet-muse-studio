@@ -6,9 +6,11 @@ interface InputPanelProps {
   appData: AppData;
   setAppData: React.Dispatch<React.SetStateAction<AppData>>;
   onProcess: (category: 'barre' | 'center', sectionId: string) => void;
+  activeSection?: { category: 'barre' | 'center'; id: string } | null;
+  onSectionFocus?: (category: 'barre' | 'center', id: string) => void;
 }
 
-export default function InputPanel({ appData, setAppData, onProcess }: InputPanelProps) {
+export default function InputPanel({ appData, setAppData, onProcess, activeSection, onSectionFocus }: InputPanelProps) {
   const removeSection = (category: 'barre' | 'center', id: string) => {
     setAppData(prev => ({
       ...prev,
@@ -51,7 +53,7 @@ export default function InputPanel({ appData, setAppData, onProcess }: InputPane
         const tags = (sectionTags[sec.title] || []).slice(0, 5);
 
         return (
-          <div key={sec.id} className="group bg-white border border-slate-100 rounded-2xl p-3 shadow-sm hover:border-pink-200 transition-all">
+          <div key={sec.id} onClick={() => onSectionFocus?.(cat, sec.id)} className={`group bg-white border rounded-2xl p-3 shadow-sm hover:border-pink-200 transition-all cursor-pointer ${activeSection?.category === cat && activeSection?.id === sec.id ? 'border-pink-300 ring-1 ring-pink-100' : 'border-slate-100'}`}>
             <div className="flex justify-between items-center mb-2">
               <input
                 value={sec.title}
