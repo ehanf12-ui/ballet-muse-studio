@@ -150,7 +150,7 @@ export default function InputPanel({ appData, setAppData, onProcess, activeSecti
             <button
               onClick={() => onProcess(cat, sec.id)}
               disabled={sec.loading}
-              className="w-full mt-2 bg-pink-500 text-white rounded-xl py-2 text-[10px] font-black uppercase tracking-widest hover:bg-pink-600 active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50"
+              className={`w-full mt-2 text-white rounded-xl py-2 text-[10px] font-black uppercase tracking-widest active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50 ${cat === 'barre' ? 'bg-rose-400 hover:bg-rose-500' : 'bg-indigo-400 hover:bg-indigo-500'}`}
             >
               {sec.loading ? <Loader2 size={12} className="animate-spin" /> : 'Update'}
             </button>
