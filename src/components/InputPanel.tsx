@@ -36,7 +36,9 @@ export default function InputPanel({ appData, setAppData, onProcess }: InputPane
     updateInput(category, sec.id, newVal);
   };
 
-  const renderCategory = (cat: 'barre' | 'center') => (
+  const renderCategory = (cat: 'barre' | 'center') => {
+    const sections = appData?.[cat] ?? [];
+    return (
     <div key={cat} className="space-y-3">
       <div className="flex items-center gap-2 px-1">
         <div className={`w-1.5 h-1.5 rounded-full ${cat === 'barre' ? 'bg-pink-500' : 'bg-slate-800'}`} />
@@ -45,7 +47,7 @@ export default function InputPanel({ appData, setAppData, onProcess }: InputPane
         </span>
       </div>
 
-      {appData[cat].map(sec => {
+      {sections.map(sec => {
         const tags = (sectionTags[sec.title] || []).slice(0, 5);
 
         return (
@@ -97,6 +99,7 @@ export default function InputPanel({ appData, setAppData, onProcess }: InputPane
       })}
     </div>
   );
+  };
 
   return (
     <div className="space-y-3">
