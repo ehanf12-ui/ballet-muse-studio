@@ -1,237 +1,107 @@
-import { Movement, Exercise, Section, genId } from '@/lib/types';
-import { LangMode, t, getMovementName, getMovementKeys, getFootPosition, getDirection } from '@/lib/i18n';
-import { Plus, Trash2 } from 'lucide-react';
+import { Trash2, Loader2 } from 'lucide-react';
+import { AppData, SectionData } from '@/lib/types';
+import { sectionTags } from '@/lib/data';
 
 interface InputPanelProps {
-  sections: Section[];
-  setSections: React.Dispatch<React.SetStateAction<Section[]>>;
-  lang: LangMode;
+  appData: AppData;
+  setAppData: React.Dispatch<React.SetStateAction<AppData>>;
+  onProcess: (category: 'barre' | 'center', sectionId: string) => void;
 }
 
-export default function InputPanel({ sections, setSections, lang }: InputPanelProps) {
-  const movementKeys = getMovementKeys();
-
-  const addExercise = (sectionId: string) => {
-    setSections((prev) =>
-      prev.map((s) =>
-        s.id === sectionId
-          ? {
-              ...s,
-              exercises: [
-                ...s.exercises,
-                {
-                  id: genId(),
-                  movements: [
-                    { id: genId(), key: 'plie', beat: 1, duration: 2, hasAnd: false, footPosition: 1, direction: 'right' },
-                  ],
-                },
-              ],
-            }
-          : s
-      )
-    );
+export default function InputPanel({ appData, setAppData, onProcess }: InputPanelProps) {
+  const removeSection = (category: 'barre' | 'center', id: string) => {
+    setAppData(prev => ({
+      ...prev,
+      [category]: prev[category].filter(s => s.id !== id)
+    }));
   };
 
-  const addMovement = (sectionId: string, exerciseId: string) => {
-    setSections((prev) =>
-      prev.map((s) =>
-        s.id === sectionId
-          ? {
-              ...s,
-              exercises: s.exercises.map((ex) => {
-                if (ex.id !== exerciseId) return ex;
-                const lastMov = ex.movements[ex.movements.length - 1];
-                const nextBeat = lastMov ? Math.min(lastMov.beat + lastMov.duration, 8) : 1;
-                return {
-                  ...ex,
-                  movements: [
-                    ...ex.movements,
-                    { id: genId(), key: 'tendu', beat: nextBeat, duration: 1, hasAnd: false, footPosition: 1, direction: 'right' },
-                  ],
-                };
-              }),
-            }
-          : s
-      )
-    );
+  const updateTitle = (category: 'barre' | 'center', id: string, val: string) => {
+    setAppData(prev => ({
+      ...prev,
+      [category]: prev[category].map(s => s.id === id ? { ...s, title: val } : s)
+    }));
   };
 
-  const updateMovement = (sectionId: string, exerciseId: string, movId: string, patch: Partial<Movement>) => {
-    setSections((prev) =>
-      prev.map((s) =>
-        s.id === sectionId
-          ? {
-              ...s,
-              exercises: s.exercises.map((ex) => {
-                if (ex.id !== exerciseId) return ex;
-                const updated = ex.movements.map((m) => (m.id === movId ? { ...m, ...patch } : m));
-                // auto-shift logic: recalc beats after duration change
-                if (patch.duration !== undefined) {
-                  let cursor = 1;
-                  for (const m of updated) {
-                    m.beat = cursor;
-                    cursor = Math.min(cursor + m.duration, 9);
-                  }
-                }
-                return { ...ex, movements: updated };
-              }),
-            }
-          : s
-      )
-    );
+  const updateInput = (category: 'barre' | 'center', id: string, val: string) => {
+    setAppData(prev => ({
+      ...prev,
+      [category]: prev[category].map(s => s.id === id ? { ...s, input: val } : s)
+    }));
   };
 
-  const deleteMovement = (sectionId: string, exerciseId: string, movId: string) => {
-    setSections((prev) =>
-      prev.map((s) =>
-        s.id === sectionId
-          ? {
-              ...s,
-              exercises: s.exercises.map((ex) =>
-                ex.id === exerciseId
-                  ? { ...ex, movements: ex.movements.filter((m) => m.id !== movId) }
-                  : ex
-              ),
-            }
-          : s
-      )
-    );
+  const appendTag = (category: 'barre' | 'center', sec: SectionData, tag: string) => {
+    const cur = sec.input.trim();
+    const newVal = (cur ? cur + ", " : "") + tag;
+    updateInput(category, sec.id, newVal);
   };
 
-  const deleteExercise = (sectionId: string, exerciseId: string) => {
-    setSections((prev) =>
-      prev.map((s) =>
-        s.id === sectionId
-          ? { ...s, exercises: s.exercises.filter((ex) => ex.id !== exerciseId) }
-          : s
-      )
-    );
-  };
+  const renderCategory = (cat: 'barre' | 'center') => (
+    <div key={cat} className="space-y-3">
+      <div className="flex items-center gap-2 px-1">
+        <div className={`w-1.5 h-1.5 rounded-full ${cat === 'barre' ? 'bg-pink-500' : 'bg-slate-800'}`} />
+        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          {cat} SECTIONS
+        </span>
+      </div>
+
+      {appData[cat].map(sec => {
+        const tags = (sectionTags[sec.title] || []).slice(0, 5);
+
+        return (
+          <div key={sec.id} className="group bg-white border border-slate-100 rounded-2xl p-3 shadow-sm hover:border-pink-200 transition-all">
+            <div className="flex justify-between items-center mb-2">
+              <input
+                value={sec.title}
+                onChange={(e) => updateTitle(cat, sec.id, e.target.value)}
+                className="text-[13px] font-bold border-none p-0 focus:ring-0 w-3/4 bg-transparent group-hover:text-pink-600 transition-colors outline-none"
+              />
+              <button
+                onClick={() => removeSection(cat, sec.id)}
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-300 hover:text-red-400"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mb-2">
+                {tags.map(t => (
+                  <button
+                    key={t}
+                    onClick={() => appendTag(cat, sec, t)}
+                    className="text-[9px] font-bold px-2 py-0.5 bg-slate-50 text-slate-400 rounded-md border border-slate-100 hover:bg-pink-50 hover:text-pink-500 hover:border-pink-200 transition-all"
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <textarea
+              value={sec.input}
+              onChange={(e) => updateInput(cat, sec.id, e.target.value)}
+              className="w-full h-16 bg-slate-50 border-none rounded-xl text-[11px] p-3 focus:ring-1 focus:ring-pink-100 resize-none font-medium text-slate-600 outline-none"
+              placeholder="순서 노트를 입력하세요..."
+            />
+
+            <button
+              onClick={() => onProcess(cat, sec.id)}
+              disabled={sec.loading}
+              className="w-full mt-2 bg-slate-900 text-white rounded-xl py-2 text-[10px] font-black uppercase tracking-widest hover:bg-pink-600 active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50"
+            >
+              {sec.loading ? <Loader2 size={12} className="animate-spin" /> : 'Update Score'}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
 
   return (
-    <div className="space-y-6">
-      {sections.map((section) => (
-        <div key={section.id}>
-          <h2 className="ballet-section-title mb-3">{t(section.type, lang)}</h2>
-
-          <div className="space-y-4">
-            {section.exercises.map((exercise, exIdx) => (
-              <div key={exercise.id} className="ballet-card">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {t('exercise', lang)} {exIdx + 1}
-                  </span>
-                  <button
-                    onClick={() => deleteExercise(section.id, exercise.id)}
-                    className="text-muted-foreground hover:text-destructive transition-colors p-1"
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {exercise.movements.map((mov) => (
-                    <div key={mov.id} className="border border-border rounded-md p-3 space-y-2">
-                      {/* Movement selector */}
-                      <div className="flex flex-wrap gap-1.5">
-                        {movementKeys.slice(0, 12).map((mk) => (
-                          <button
-                            key={mk}
-                            className={`ballet-tag ${mov.key === mk ? 'active' : ''}`}
-                            onClick={() => updateMovement(section.id, exercise.id, mov.id, { key: mk })}
-                          >
-                            {getMovementName(mk, lang)}
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* Controls row */}
-                      <div className="flex items-center gap-3 flex-wrap">
-                        {/* Duration */}
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-muted-foreground">{t('duration', lang) || 'Duration'}</span>
-                          <button
-                            className="w-5 h-5 rounded border border-border text-xs flex items-center justify-center hover:bg-secondary transition-colors"
-                            onClick={() => updateMovement(section.id, exercise.id, mov.id, { duration: Math.max(1, mov.duration - 1) })}
-                          >
-                            −
-                          </button>
-                          <span className="text-xs font-medium w-4 text-center">{mov.duration}</span>
-                          <button
-                            className="w-5 h-5 rounded border border-border text-xs flex items-center justify-center hover:bg-secondary transition-colors"
-                            onClick={() => updateMovement(section.id, exercise.id, mov.id, { duration: Math.min(8, mov.duration + 1) })}
-                          >
-                            +
-                          </button>
-                        </div>
-
-                        {/* Foot position */}
-                        <select
-                          className="text-[10px] bg-secondary border border-border rounded px-1.5 py-0.5"
-                          value={mov.footPosition ?? 1}
-                          onChange={(e) => updateMovement(section.id, exercise.id, mov.id, { footPosition: Number(e.target.value) })}
-                        >
-                          {[1, 2, 3, 4, 5].map((n) => (
-                            <option key={n} value={n}>{getFootPosition(n, lang)}</option>
-                          ))}
-                        </select>
-
-                        {/* Direction */}
-                        <select
-                          className="text-[10px] bg-secondary border border-border rounded px-1.5 py-0.5"
-                          value={mov.direction ?? 'right'}
-                          onChange={(e) =>
-                            updateMovement(section.id, exercise.id, mov.id, {
-                              direction: e.target.value as Movement['direction'],
-                            })
-                          }
-                        >
-                          {(['right', 'left', 'front', 'back'] as const).map((d) => (
-                            <option key={d} value={d}>{getDirection(d, lang)}</option>
-                          ))}
-                        </select>
-
-                        {/* And beat toggle */}
-                        <label className="flex items-center gap-1 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={mov.hasAnd}
-                            onChange={(e) => updateMovement(section.id, exercise.id, mov.id, { hasAnd: e.target.checked })}
-                            className="w-3 h-3 accent-primary"
-                          />
-                          <span className="text-[10px] text-muted-foreground">&</span>
-                        </label>
-
-                        {/* Delete */}
-                        <button
-                          onClick={() => deleteMovement(section.id, exercise.id, mov.id)}
-                          className="ml-auto text-muted-foreground hover:text-destructive transition-colors p-0.5"
-                        >
-                          <Trash2 size={11} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => addMovement(section.id, exercise.id)}
-                  className="mt-2 flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <Plus size={12} /> {t('addMovement', lang)}
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <button
-            onClick={() => addExercise(section.id)}
-            className="mt-3 flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
-          >
-            <Plus size={14} /> {t('addExercise', lang)}
-          </button>
-        </div>
-      ))}
+    <div className="space-y-3">
+      {renderCategory('barre')}
+      {renderCategory('center')}
     </div>
   );
 }

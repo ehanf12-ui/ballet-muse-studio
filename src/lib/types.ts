@@ -1,25 +1,26 @@
-export interface Movement {
-  id: string;
-  key: string; // movement dictionary key
-  beat: number; // 1-8
-  duration: number; // how many beats
-  hasAnd: boolean; // & beat before this
-  footPosition?: number; // 1-5
-  direction?: 'right' | 'left' | 'front' | 'back';
+export interface Step {
+  term_kr: string;
+  term_fr: string;
+  start_beat: number;
+  duration: number;
+  side: string | null;
+  pose: string | null;
+  is_outbeat: boolean;
 }
 
-export interface Exercise {
+export interface SectionData {
   id: string;
-  movements: Movement[];
+  title: string;
+  input: string;
+  steps: Step[];
+  loading: boolean;
 }
 
-export interface Section {
-  id: string;
-  type: 'barre' | 'centre';
-  exercises: Exercise[];
+export interface AppData {
+  barre: SectionData[];
+  center: SectionData[];
 }
 
-let _idCounter = 0;
 export function genId(): string {
-  return `id_${++_idCounter}_${Date.now()}`;
+  return Math.random().toString(36).substr(2, 9);
 }
