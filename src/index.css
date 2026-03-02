@@ -2,53 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @layer base {
   :root {
-    --background: 340 100% 98%;
-    --foreground: 240 10% 15%;
+    --background: 210 20% 97%;
+    --foreground: 215 25% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 15%;
+    --card-foreground: 215 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 15%;
+    --popover-foreground: 215 25% 15%;
 
-    --primary: 330 86% 70%;
+    --primary: 330 80% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 340 50% 96%;
-    --secondary-foreground: 240 10% 25%;
+    --secondary: 210 15% 96%;
+    --secondary-foreground: 215 25% 25%;
 
-    --muted: 340 30% 95%;
-    --muted-foreground: 240 5% 55%;
+    --muted: 210 10% 95%;
+    --muted-foreground: 215 10% 55%;
 
-    --accent: 330 86% 70%;
+    --accent: 330 80% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 340 20% 90%;
-    --input: 340 20% 90%;
-    --ring: 330 86% 70%;
+    --border: 210 15% 90%;
+    --input: 210 15% 90%;
+    --ring: 330 80% 60%;
 
     --radius: 0.5rem;
-
-    /* Custom ballet tokens */
-    --ballet-bg: 340 100% 98%;
-    --ballet-card: 0 0% 100%;
-    --ballet-accent: 330 86% 70%;
-    --ballet-accent-light: 340 80% 94%;
-    --ballet-text: 240 10% 15%;
-    --ballet-text-muted: 240 5% 55%;
-    --ballet-border: 340 20% 90%;
-    --ballet-border-strong: 340 15% 82%;
-    --ballet-grid-header: 240 10% 25%;
-    --ballet-beat-bg: 340 40% 97%;
-    --ballet-and-bg: 330 60% 95%;
-    --ballet-meta: 240 5% 65%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -61,25 +47,25 @@
   }
 
   .dark {
-    --background: 240 10% 8%;
+    --background: 215 25% 8%;
     --foreground: 0 0% 95%;
-    --card: 240 10% 12%;
+    --card: 215 25% 12%;
     --card-foreground: 0 0% 95%;
-    --popover: 240 10% 12%;
+    --popover: 215 25% 12%;
     --popover-foreground: 0 0% 95%;
-    --primary: 330 86% 70%;
+    --primary: 330 80% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 10% 16%;
+    --secondary: 215 25% 16%;
     --secondary-foreground: 0 0% 90%;
-    --muted: 240 10% 18%;
-    --muted-foreground: 240 5% 60%;
-    --accent: 330 86% 70%;
+    --muted: 215 25% 18%;
+    --muted-foreground: 215 10% 60%;
+    --accent: 330 80% 60%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 10% 20%;
-    --input: 240 10% 20%;
-    --ring: 330 86% 70%;
+    --border: 215 25% 20%;
+    --input: 215 25% 20%;
+    --ring: 330 80% 60%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -98,56 +84,5 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', 'Noto Sans KR', sans-serif;
-  }
-  h1, h2, h3, h4 {
-    font-family: 'Playfair Display', serif;
-  }
-}
-
-@layer components {
-  .ballet-card {
-    @apply bg-card rounded-lg border border-border p-4;
-  }
-  .ballet-section-title {
-    font-family: 'Playfair Display', serif;
-    @apply text-lg font-semibold tracking-wide;
-  }
-  .ballet-tag {
-    @apply inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full
-           bg-secondary text-secondary-foreground border border-border
-           cursor-pointer transition-all duration-150;
-  }
-  .ballet-tag:hover {
-    @apply border-primary/40 bg-primary/5;
-  }
-  .ballet-tag.active {
-    @apply bg-primary text-primary-foreground border-primary;
-  }
-  .beat-cell {
-    @apply relative flex-1 min-w-0 border-r border-border px-1 py-1.5 text-xs;
-  }
-  .beat-cell:last-child {
-    @apply border-r-0;
-  }
-  .and-marker {
-    @apply absolute left-0 top-0 bottom-0 flex items-center justify-center
-           text-[9px] font-medium text-muted-foreground;
-    width: 18px;
-    margin-left: -18px;
-    background: hsl(var(--ballet-and-bg));
-    border-right: 1px solid hsl(var(--border));
-    border-radius: 2px 0 0 2px;
-  }
-  .score-grid-header {
-    @apply text-[10px] font-semibold uppercase tracking-widest text-center py-1.5;
-    color: hsl(var(--ballet-grid-header));
-  }
-  .tip-card {
-    @apply bg-secondary/60 border border-border rounded-lg px-4 py-3 text-xs
-           text-muted-foreground leading-relaxed;
-  }
-  .movement-meta {
-    @apply text-[9px] leading-tight mb-0.5;
-    color: hsl(var(--ballet-meta));
   }
 }
