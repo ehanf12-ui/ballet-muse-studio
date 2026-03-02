@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { SectionData } from '@/lib/types';
+import { SectionData, TimeSignature } from '@/lib/types';
+import { getDirectionInfo } from '@/lib/directions';
 import { Info } from 'lucide-react';
 
 type LangMode = 'both' | 'kr' | 'fr';
@@ -21,11 +22,15 @@ function ScoreGrid({
   langMode: LangMode;
   onDurationChange: (category: 'barre' | 'center', sectionId: string, stepIndex: number, delta: number) => void;
 }) {
-  const maxBeat = useMemo(() => {
-    if (!section.steps.length) return 8;
-    return section.steps.reduce((max, s) => Math.max(max, s.start_beat + s.duration - 1), 0);
-  }, [section.steps]);
+  const ts: TimeSignature = section.timeSignature || '4/4';
+  const beatsPerMeasure = ts === '3/4' ? 3 : 4;
 
+  const maxBeat = useMemo(() => {
+    if (!section.steps.length) return beatsPerMeasure * 2;
+    return section.steps.reduce((max, s) => Math.max(max, s.start_beat + s.duration - 1), 0);
+  }, [section.steps, beatsPerMeasure]);
+
+  // Always use 8 columns for visual grid, but overlay measure lines
   const totalBeats = Math.max(8, Math.ceil(maxBeat / 8) * 8);
   const beatsArray = Array.from({ length: totalBeats }, (_, i) => i + 1);
 
@@ -38,6 +43,11 @@ function ScoreGrid({
         <span className="text-[9px] text-slate-300 font-bold tracking-widest">
           {totalBeats} BEATS
         </span>
+        {ts === '3/4' && (
+          <span className="text-[8px] font-bold text-pink-400 bg-pink-50 px-1.5 py-0.5 rounded">
+            🎵 3/4
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-8 border-y-[1.5px] border-slate-900 bg-white shadow-sm overflow-hidden">
@@ -45,11 +55,15 @@ function ScoreGrid({
           const stepAtBeat = section.steps.find(s => s.start_beat === beat);
           const isOutbeatBeat = stepAtBeat?.is_outbeat;
           const isPhraseEnd = beat % 8 === 0;
+          // 3/4 measure highlight: beats that start a new waltz measure (1, 4, 7, 10...)
+          const isWaltzMeasureStart = ts === '3/4' && ((beat - 1) % beatsPerMeasure === 0);
+          const isWaltzMeasureLine = ts === '3/4' && beat > 1 && ((beat - 1) % beatsPerMeasure === 0);
 
           return (
             <div
               key={beat}
-              className={`flex min-h-[60px] border-l border-slate-100 relative transition-all ${isPhraseEnd ? 'border-r-2 border-r-slate-900' : ''}`}
+              className={`flex min-h-[60px] border-l relative transition-all ${isPhraseEnd ? 'border-r-2 border-r-slate-900' : ''} ${isWaltzMeasureLine ? 'border-l-[2px] border-l-pink-200' : 'border-l-slate-100'}`}
+              style={isWaltzMeasureStart ? { backgroundColor: 'rgba(244, 114, 182, 0.04)' } : undefined}
             >
               {/* & marker column */}
               <div
@@ -70,6 +84,7 @@ function ScoreGrid({
                   const stepIdx = section.steps.findIndex(s => s === step);
                   const widthPercent = step.duration * 100 - 5;
                   const meta = [step.side, step.pose].filter(Boolean).join(' ');
+                  const dirInfo = getDirectionInfo(step.direction, step.side);
 
                   return (
                     <div
@@ -80,6 +95,13 @@ function ScoreGrid({
                         zIndex: 30 + beat,
                       }}
                     >
+                      {/* Direction arrow */}
+                      {dirInfo && (
+                        <div className="text-[7px] font-black text-indigo-500 leading-none mb-0.5 flex items-center gap-0.5">
+                          <span>{dirInfo.abbr}</span>
+                          <span className="text-[9px]">{dirInfo.arrow}</span>
+                        </div>
+                      )}
                       {meta && (
                         <div className="text-[7px] font-bold text-slate-400 leading-none mb-0.5">
                           {meta}
@@ -117,6 +139,14 @@ function ScoreGrid({
           );
         })}
       </div>
+
+      {/* Correction / Feedback note */}
+      {section.correction && (
+        <div className="mt-2 px-3 py-2 rounded-xl text-[10px] font-medium text-amber-800 border border-amber-200" style={{ backgroundColor: '#fffbeb' }}>
+          <span className="text-[8px] font-black text-amber-500 uppercase tracking-widest mr-2">FEEDBACK</span>
+          {section.correction}
+        </div>
+      )}
     </div>
   );
 }

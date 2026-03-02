@@ -1,3 +1,5 @@
+export type TimeSignature = '4/4' | '3/4';
+
 export interface Step {
   term_kr: string;
   term_fr: string;
@@ -6,6 +8,7 @@ export interface Step {
   side: string | null;
   pose: string | null;
   is_outbeat: boolean;
+  direction: string | null;
 }
 
 export interface SectionData {
@@ -14,6 +17,8 @@ export interface SectionData {
   input: string;
   steps: Step[];
   loading: boolean;
+  timeSignature: TimeSignature;
+  correction: string;
 }
 
 export interface AppData {
