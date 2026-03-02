@@ -222,13 +222,13 @@ const Index = () => {
           <div className="h-4 w-[1px] bg-slate-200" />
           <button
             onClick={() => addSection('barre')}
-            className="flex items-center gap-1.5 bg-white border border-pink-100 text-pink-600 px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-pink-50 transition-all shadow-sm"
+            className="flex items-center gap-1.5 bg-rose-50 border border-rose-200 text-rose-500 px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition-all shadow-sm"
           >
             <Plus size={14} /> BARRE
           </button>
           <button
             onClick={() => addSection('center')}
-            className="flex items-center gap-1.5 bg-slate-800 text-white px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-700 transition-all shadow-md"
+            className="flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 text-indigo-500 px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all shadow-sm"
           >
             <Plus size={14} /> CENTER
           </button>
