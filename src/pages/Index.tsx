@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Save, Loader2 } from 'lucide-react';
+import { Plus, Save, Loader2, Music } from 'lucide-react';
 import { AppData, genId } from '@/lib/types';
 import { initBarreTitles, initCenterTitles } from '@/lib/data';
 import TipRotator from '@/components/TipRotator';
@@ -177,9 +177,11 @@ const Index = () => {
       <header className="flex h-14 shrink-0 items-center justify-between border-b bg-white px-6 z-50 shadow-sm">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-pink-500 rounded-lg flex items-center justify-center text-white font-black text-sm">B</div>
+            <div className="w-7 h-7 bg-pink-500 rounded-lg flex items-center justify-center text-white">
+              <Music size={15} strokeWidth={2.5} />
+            </div>
             <h1 className="text-lg font-black tracking-tighter font-sans">
-              Ballet Score <span className="text-pink-500">Studio</span>
+              Ballet Sequence <span className="text-pink-500">Note</span>
             </h1>
           </div>
           <div className="h-4 w-[1px] bg-slate-200" />

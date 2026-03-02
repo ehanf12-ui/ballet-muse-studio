@@ -68,10 +68,10 @@ export default function InputPanel({ appData, setAppData, onProcess, activeSecti
     const sections = appData?.[cat] ?? [];
     return (
     <div key={cat} className="space-y-3">
-      <div className="flex items-center gap-2 px-1">
-        <div className={`w-1.5 h-1.5 rounded-full ${cat === 'barre' ? 'bg-pink-500' : 'bg-slate-800'}`} />
-        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-          {cat} SECTIONS
+      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${cat === 'barre' ? 'bg-pink-50 border border-pink-100' : 'bg-slate-50 border border-slate-200'}`}>
+        <div className={`w-2 h-2 rounded-full ${cat === 'barre' ? 'bg-pink-400' : 'bg-slate-400'}`} />
+        <span className={`text-[10px] font-black uppercase tracking-widest ${cat === 'barre' ? 'text-pink-500' : 'text-slate-500'}`}>
+          {cat === 'barre' ? '🩰 Barre' : '💃 Center'}
         </span>
       </div>
 
@@ -150,9 +150,9 @@ export default function InputPanel({ appData, setAppData, onProcess, activeSecti
             <button
               onClick={() => onProcess(cat, sec.id)}
               disabled={sec.loading}
-              className="w-full mt-2 bg-slate-900 text-white rounded-xl py-2 text-[10px] font-black uppercase tracking-widest hover:bg-pink-600 active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50"
+              className="w-full mt-2 bg-pink-500 text-white rounded-xl py-2 text-[10px] font-black uppercase tracking-widest hover:bg-pink-600 active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50"
             >
-              {sec.loading ? <Loader2 size={12} className="animate-spin" /> : 'Update Score'}
+              {sec.loading ? <Loader2 size={12} className="animate-spin" /> : 'Update'}
             </button>
           </div>
         );
