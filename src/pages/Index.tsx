@@ -4,6 +4,7 @@ import { AppData, genId } from '@/lib/types';
 import { initBarreTitles, initCenterTitles } from '@/lib/data';
 import TipRotator from '@/components/TipRotator';
 import InputPanel from '@/components/InputPanel';
+import MusicPlayer from '@/components/MusicPlayer';
 import ScoreRenderer from '@/components/ScoreRenderer';
 import SemanticSearch from '@/components/SemanticSearch';
 import NotesVault from '@/components/NotesVault';
@@ -171,7 +172,7 @@ const Index = () => {
   };
 
   return (
-    <div className="flex h-screen w-full flex-col bg-slate-50 font-sans text-slate-900 overflow-hidden">
+    <div className="flex h-screen w-full flex-col bg-background font-sans text-foreground overflow-hidden">
       {/* Header */}
       <header className="flex h-14 shrink-0 items-center justify-between border-b bg-white px-6 z-50 shadow-sm">
         <div className="flex items-center gap-6">
@@ -233,7 +234,7 @@ const Index = () => {
       </header>
 
       {/* Main */}
-      <main className="flex flex-1 overflow-hidden">
+      <main className="flex flex-1 overflow-hidden pb-14">
         {/* Left: Vault + Search + Input */}
         <aside className="w-[32%] overflow-y-auto border-r bg-white p-4 space-y-3">
           <NotesVault
@@ -261,6 +262,12 @@ const Index = () => {
           <ScoreRenderer appData={appData} langMode={langMode} onDurationChange={handleDurationChange} />
         </section>
       </main>
+
+      {/* Music Player */}
+      <MusicPlayer
+        activeSectionTitle={activeSection ? appData[activeSection.category].find(s => s.id === activeSection.id)?.title : undefined}
+        activeMeter={activeSection ? appData[activeSection.category].find(s => s.id === activeSection.id)?.timeSignature : undefined}
+      />
     </div>
   );
 };
