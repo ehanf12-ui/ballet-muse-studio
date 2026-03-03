@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Save, Loader2, Music, LogOut } from 'lucide-react';
+import { Plus, Save, Loader2, Music } from 'lucide-react';
 import { AppData, genId } from '@/lib/types';
 import { initBarreTitles, initCenterTitles } from '@/lib/data';
 import TipRotator from '@/components/TipRotator';
@@ -8,6 +8,7 @@ import MusicPlayer from '@/components/MusicPlayer';
 import ScoreRenderer from '@/components/ScoreRenderer';
 import SemanticSearch from '@/components/SemanticSearch';
 import NotesVault from '@/components/NotesVault';
+import ProfileDropdown from '@/components/ProfileDropdown';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotes, NoteItem } from '@/hooks/useNotes';
 import { supabase } from '@/integrations/supabase/client';
@@ -46,8 +47,8 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState<{ category: 'barre' | 'center'; id: string } | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const { user, signOut } = useAuth();
-  const { notes, loading: notesLoading, fetchNotes, saveNote, deleteNote } = useNotes(user?.id);
+  const { user, profile, signOut, updateNickname, checkNicknameAvailable, deleteAccount } = useAuth();
+  const { notes, loading: notesLoading, fetchNotes, saveNote, deleteNote, exportNotes, resetAllNotes } = useNotes(user?.id);
 
   // Fetch notes on auth
   useEffect(() => {
@@ -214,13 +215,6 @@ const Index = () => {
           </button>
           <div className="h-4 w-[1px] bg-slate-200" />
           <button
-            onClick={signOut}
-            className="flex items-center gap-1.5 bg-muted text-muted-foreground px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-destructive hover:text-destructive-foreground transition-all"
-            title="로그아웃"
-          >
-            <LogOut size={14} />
-          </button>
-          <button
             onClick={() => addSection('barre')}
             className="flex items-center gap-1.5 bg-rose-50 border border-rose-200 text-rose-500 px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition-all shadow-sm"
           >
@@ -232,6 +226,19 @@ const Index = () => {
           >
             <Plus size={14} /> CENTER
           </button>
+          <div className="h-4 w-[1px] bg-slate-200" />
+          {user && (
+            <ProfileDropdown
+              user={user}
+              profile={profile}
+              onSignOut={signOut}
+              onExportNotes={exportNotes}
+              onResetNotes={async () => { await resetAllNotes(); handleNewNote(); }}
+              onDeleteAccount={deleteAccount}
+              onUpdateNickname={updateNickname}
+              onCheckNickname={checkNicknameAvailable}
+            />
+          )}
         </div>
       </header>
 

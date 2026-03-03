@@ -87,5 +87,34 @@ export function useNotes(userId: string | undefined) {
     }
   }, [userId, fetchNotes]);
 
-  return { notes, loading, fetchNotes, saveNote, deleteNote };
+  const exportNotes = useCallback(() => {
+    if (notes.length === 0) {
+      toast.info('백업할 노트가 없습니다.');
+      return;
+    }
+    const blob = new Blob([JSON.stringify(notes, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ballet-notes-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('노트가 백업되었습니다.');
+  }, [notes]);
+
+  const resetAllNotes = useCallback(async () => {
+    if (!userId) return;
+    const { error } = await supabase
+      .from('notes')
+      .delete()
+      .eq('user_id', userId);
+    if (error) {
+      toast.error('초기화 실패');
+    } else {
+      toast.success('모든 노트가 삭제되었습니다.');
+      setNotes([]);
+    }
+  }, [userId]);
+
+  return { notes, loading, fetchNotes, saveNote, deleteNote, exportNotes, resetAllNotes };
 }
