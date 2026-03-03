@@ -19,12 +19,15 @@ CRITICAL RULES:
 - Do NOT multiply or calculate counts and repetitions. Extract them EXACTLY as written in the user input.
 - "A박자 B번" means duration=A, repetition=B. Do NOT merge them (e.g., "2박자 2번" → duration=2, repetition=2, NOT duration=4, repetition=1).
 - If repetition is not mentioned, default repetition to 1.
+- IMPORTANT: "N번발" (e.g., 1번발, 5번발) means foot POSITION, NOT repetition. "N번" without "발" means repetition count. These are completely different concepts. Never confuse them.
+  - Example: "(1번발) 그랑플리에 2박자 2번" → pose="1번발", duration=2, repetition=2.
+  - Example: "5번발 탕뒤 4박자" → pose="5번발", duration=4, repetition=1.
 
 Field rules:
 - 'duration': 사용자가 명시한 박자 수 그대로 기록. 절대 repetition과 곱하지 마.
-- 'repetition': 사용자가 명시한 반복 횟수 그대로 기록. 언급 없으면 1.
+- 'repetition': "N번" (발 없이)으로 표현된 반복 횟수만 기록. 언급 없으면 1. "N번발"의 N은 반복 횟수가 아님!
 - 'side': 직접 언급된 방향(오른쪽/왼쪽/오른/왼)만 기록.
-- 'pose': 직접 언급된 발 번호(1~5번발)만 기록.
+- 'pose': "N번발" 또는 "N번 포지션"처럼 발 포지션을 나타내는 표현만 기록. "N번"(반복)과 혼동하지 마.
 - 'is_outbeat': 동작 바로 앞에 '&' 기호가 있는 경우 true.
 - 'direction': '크로아제', '에파세', '앙파스', '에카르떼' 등 몸 방향이 언급된 경우 해당 한국어 명칭을 기록. 없으면 null.
 - 섹션 제목: "${sectionTitle}"
