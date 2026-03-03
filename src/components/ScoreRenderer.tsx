@@ -83,7 +83,7 @@ function ScoreGrid({
                 {section.steps.filter(s => s.start_beat === beat).map((step, idx) => {
                   const stepIdx = section.steps.findIndex(s => s === step);
                   const widthPercent = step.duration * 100 - 5;
-                  const meta = [step.side, step.pose].filter(Boolean).join(' ');
+                  const meta = [step.side, step.pose, step.repetition > 1 ? `×${step.repetition}` : null].filter(Boolean).join(' ');
                   const dirInfo = getDirectionInfo(step.direction, step.side);
 
                   return (

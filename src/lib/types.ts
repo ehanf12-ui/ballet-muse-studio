@@ -5,6 +5,7 @@ export interface Step {
   term_fr: string;
   start_beat: number;
   duration: number;
+  repetition: number;
   side: string | null;
   pose: string | null;
   is_outbeat: boolean;
