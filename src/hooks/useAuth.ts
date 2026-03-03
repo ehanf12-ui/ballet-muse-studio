@@ -20,10 +20,9 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInAnonymously = async () => {
-    const { error } = await supabase.auth.signInAnonymously();
-    if (error) console.error('Anonymous sign-in error:', error);
+  const signOut = async () => {
+    await supabase.auth.signOut();
   };
 
-  return { user, loading, signInAnonymously };
+  return { user, loading, signOut };
 }
