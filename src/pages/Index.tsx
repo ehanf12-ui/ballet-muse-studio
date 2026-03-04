@@ -76,7 +76,7 @@ const Index = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke('ballet-ai', {
-        body: { input: section.input, sectionTitle: section.title },
+        body: { input: section.input, sectionTitle: section.title, timeSignature: section.timeSignature },
       });
 
       if (error) throw error;
