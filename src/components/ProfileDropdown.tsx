@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings, Download, Trash2, LogOut, UserX, Palette } from 'lucide-react';
+import { Settings, Download, Trash2, LogOut, UserX, Palette, MessageSquarePlus, Shield } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent,
@@ -8,7 +8,10 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import ProfileSettingsDialog from './ProfileSettingsDialog';
+import FeedbackDialog from './FeedbackDialog';
 import { useTheme, themeLabels, ThemeName } from '@/contexts/ThemeContext';
+import { useAdminRole } from '@/hooks/useAdminRole';
+import { Link } from 'react-router-dom';
 import type { User } from '@supabase/supabase-js';
 import type { UserProfile } from '@/hooks/useAuth';
 
@@ -27,9 +30,11 @@ export default function ProfileDropdown({
   user, profile, onSignOut, onExportNotes, onResetNotes, onDeleteAccount, onUpdateNickname, onCheckNickname,
 }: ProfileDropdownProps) {
   const [showSettings, setShowSettings] = useState(false);
+  const [showFeedback, setShowFeedback] = useState(false);
   const [resetDialog, setResetDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { isAdmin } = useAdminRole(user.id);
 
   const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture;
   const displayName = profile?.nickname || profile?.display_name || user.user_metadata?.full_name || user.email?.split('@')[0] || '사용자';
@@ -66,9 +71,22 @@ export default function ProfileDropdown({
               ))}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
+          <DropdownMenuItem onClick={() => setShowFeedback(true)}>
+            <MessageSquarePlus size={14} className="mr-2" /> 의견 보내기
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={onExportNotes}>
             <Download size={14} className="mr-2" /> 내 노트 백업
           </DropdownMenuItem>
+          {isAdmin && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/admin" className="flex items-center">
+                  <Shield size={14} className="mr-2" /> 관리자 대시보드
+                </Link>
+              </DropdownMenuItem>
+            </>
+          )}
           <DropdownMenuItem onClick={() => setResetDialog(true)} className="text-destructive focus:text-destructive">
             <Trash2 size={14} className="mr-2" /> 데이터 초기화
           </DropdownMenuItem>
@@ -84,6 +102,8 @@ export default function ProfileDropdown({
 
       <ProfileSettingsDialog open={showSettings} onOpenChange={setShowSettings} profile={profile}
         onUpdateNickname={onUpdateNickname} onCheckNickname={onCheckNickname} />
+
+      <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} user={user} profile={profile} />
 
       <AlertDialog open={resetDialog} onOpenChange={setResetDialog}>
         <AlertDialogContent>
