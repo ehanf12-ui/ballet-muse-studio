@@ -94,7 +94,7 @@ export default function MusicPlayer({ activeSectionTitle, activeMeter }: MusicPl
   return (
     <>
       <audio ref={audioRef} muted={muted} preload="metadata" />
-      <div className="fixed bottom-0 left-0 right-0 h-14 bg-card border-t border-border flex items-center px-4 gap-3 z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <div className="fixed bottom-16 md:bottom-0 left-0 right-0 h-14 bg-card border-t border-border flex items-center px-4 gap-3 z-40 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         {/* Track info */}
         <div className="flex items-center gap-2 w-48 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
