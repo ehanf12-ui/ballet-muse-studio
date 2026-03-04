@@ -64,11 +64,19 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        score: {
+          bg: "hsl(var(--score-bg))",
+          "step-bg": "hsl(var(--score-step-bg))",
+          "step-border": "hsl(var(--score-step-border))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      screens: {
+        'landscape-tablet': { raw: '(min-width: 1024px) and (orientation: landscape)' },
       },
       keyframes: {
         "accordion-down": {

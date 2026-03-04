@@ -23,6 +23,7 @@ export interface SectionData {
   loading: boolean;
   timeSignature: TimeSignature;
   correction: string;
+  youtubeUrl?: string;
 }
 
 export interface AppData {
