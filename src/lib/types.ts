@@ -10,6 +10,9 @@ export interface Step {
   pose: string | null;
   is_outbeat: boolean;
   direction: string | null;
+  measureIndex?: number;
+  beatIndex?: number;
+  description?: string | null;
 }
 
 export interface SectionData {
