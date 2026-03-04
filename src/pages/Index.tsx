@@ -10,6 +10,7 @@ import SemanticSearch from '@/components/SemanticSearch';
 import ExportMenu from '@/components/ExportMenu';
 import NotesVault from '@/components/NotesVault';
 import ProfileDropdown from '@/components/ProfileDropdown';
+import YouTubeEmbed from '@/components/YouTubeEmbed';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotes, NoteItem } from '@/hooks/useNotes';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,22 +21,13 @@ type LangMode = 'both' | 'kr' | 'fr';
 function createInitialData(): AppData {
   return {
     barre: initBarreTitles.map(t => ({
-      id: genId(),
-      title: t,
+      id: genId(), title: t,
       input: t === "플리에" ? "(1번발)\n(2번발)\n(4번발)\n(5번발)" : "",
-      steps: [],
-      loading: false,
-      timeSignature: '4/4' as const,
-      correction: '',
+      steps: [], loading: false, timeSignature: '4/4' as const, correction: '', youtubeUrl: '',
     })),
     center: initCenterTitles.map(t => ({
-      id: genId(),
-      title: t,
-      input: "",
-      steps: [],
-      loading: false,
-      timeSignature: t === "왈츠" ? '3/4' as const : '4/4' as const,
-      correction: '',
+      id: genId(), title: t, input: "", steps: [], loading: false,
+      timeSignature: t === "왈츠" ? '3/4' as const : '4/4' as const, correction: '', youtubeUrl: '',
     })),
   };
 }
@@ -50,52 +42,33 @@ const Index = () => {
   const [saving, setSaving] = useState(false);
 
   const { user, profile, signOut, updateNickname, checkNicknameAvailable, deleteAccount } = useAuth();
-  const { notes, loading: notesLoading, fetchNotes, saveNote, deleteNote, exportNotes, resetAllNotes } = useNotes(user?.id);
+  const { notes, loading: notesLoading, fetchNotes, saveNote, deleteNote, toggleFavorite, exportNotes, resetAllNotes } = useNotes(user?.id);
 
-  // Fetch notes on auth
-  useEffect(() => {
-    if (user) fetchNotes();
-  }, [user, fetchNotes]);
+  useEffect(() => { if (user) fetchNotes(); }, [user, fetchNotes]);
 
-  // Track active section (first section by default)
   useEffect(() => {
     if (!activeSection && appData.barre.length > 0) {
       setActiveSection({ category: 'barre', id: appData.barre[0].id });
     }
   }, [appData, activeSection]);
 
-  // AI processing via edge function
   const processAI = useCallback(async (category: 'barre' | 'center', sectionId: string) => {
     const section = appData[category].find(s => s.id === sectionId);
     if (!section || !section.input.trim()) return;
-
-    setAppData(prev => ({
-      ...prev,
-      [category]: prev[category].map(s => s.id === sectionId ? { ...s, loading: true } : s)
-    }));
-
+    setAppData(prev => ({ ...prev, [category]: prev[category].map(s => s.id === sectionId ? { ...s, loading: true } : s) }));
     try {
       const { data, error } = await supabase.functions.invoke('ballet-ai', {
         body: { input: section.input, sectionTitle: section.title, timeSignature: section.timeSignature },
       });
-
       if (error) throw error;
-
-      setAppData(prev => ({
-        ...prev,
-        [category]: prev[category].map(s => s.id === sectionId ? { ...s, steps: data.steps || [], loading: false } : s)
-      }));
+      setAppData(prev => ({ ...prev, [category]: prev[category].map(s => s.id === sectionId ? { ...s, steps: data.steps || [], loading: false } : s) }));
     } catch (error) {
       console.error("AI Analysis Error:", error);
       toast.error('AI 분석 중 오류가 발생했습니다.');
-      setAppData(prev => ({
-        ...prev,
-        [category]: prev[category].map(s => s.id === sectionId ? { ...s, loading: false } : s)
-      }));
+      setAppData(prev => ({ ...prev, [category]: prev[category].map(s => s.id === sectionId ? { ...s, loading: false } : s) }));
     }
   }, [appData]);
 
-  // Duration change
   const handleDurationChange = useCallback((category: 'barre' | 'center', sectionId: string, stepIndex: number, delta: number) => {
     setAppData(prev => {
       const newData = JSON.parse(JSON.stringify(prev));
@@ -115,18 +88,12 @@ const Index = () => {
     setAppData(prev => ({
       ...prev,
       [category]: [...prev[category], {
-        id: genId(),
-        title: `새 ${category === 'barre' ? '바' : '센터'} 순서`,
-        input: "",
-        steps: [],
-        loading: false,
-        timeSignature: '4/4' as const,
-        correction: '',
+        id: genId(), title: `새 ${category === 'barre' ? '바' : '센터'} 순서`,
+        input: "", steps: [], loading: false, timeSignature: '4/4' as const, correction: '', youtubeUrl: '',
       }]
     }));
   };
 
-  // Save note
   const handleSave = async () => {
     setSaving(true);
     const id = await saveNote(noteTitle, appData, currentNoteId ?? undefined);
@@ -134,7 +101,6 @@ const Index = () => {
     setSaving(false);
   };
 
-  // Load note
   const handleLoadNote = (note: NoteItem) => {
     setAppData(note.data);
     setNoteTitle(note.title);
@@ -142,7 +108,6 @@ const Index = () => {
     setActiveSection(null);
   };
 
-  // New note
   const handleNewNote = () => {
     setAppData(createInitialData());
     setNoteTitle('새 노트');
@@ -150,12 +115,8 @@ const Index = () => {
     setActiveSection(null);
   };
 
-  // Semantic search result handler
   const handleSearchSelect = (termKr: string) => {
-    if (!activeSection) {
-      toast.info('입력할 섹션을 먼저 선택하세요.');
-      return;
-    }
+    if (!activeSection) { toast.info('입력할 섹션을 먼저 선택하세요.'); return; }
     const { category, id } = activeSection;
     setAppData(prev => ({
       ...prev,
@@ -167,27 +128,28 @@ const Index = () => {
     }));
   };
 
+  // Find active section's youtube URL for tablet landscape mode
+  const activeSec = activeSection ? appData[activeSection.category].find(s => s.id === activeSection.id) : null;
+  const activeYoutubeUrl = activeSec?.youtubeUrl || '';
+
   return (
     <div className="flex h-screen w-full flex-col bg-background font-sans text-foreground overflow-hidden">
       {/* Header */}
-      <header className="flex h-14 shrink-0 items-center justify-between border-b bg-white px-6 z-50 shadow-sm">
+      <header className="flex h-14 shrink-0 items-center justify-between border-b bg-card px-6 z-50 shadow-sm">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-pink-500 rounded-lg flex items-center justify-center text-white">
+            <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
               <Music size={15} strokeWidth={2.5} />
             </div>
             <h1 className="text-lg font-black tracking-tighter font-sans">
-              Ballet Sequence <span className="text-pink-500">Note</span>
+              Ballet Sequence <span className="text-primary">Note</span>
             </h1>
           </div>
-          <div className="h-4 w-[1px] bg-slate-200" />
-          <div className="flex bg-slate-100 p-0.5 rounded-lg">
+          <div className="h-4 w-[1px] bg-border" />
+          <div className="flex bg-muted p-0.5 rounded-lg">
             {(['both', 'kr', 'fr'] as const).map(m => (
-              <button
-                key={m}
-                onClick={() => setLangMode(m)}
-                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${langMode === m ? 'bg-white shadow-sm text-pink-500' : 'text-slate-400 hover:text-slate-600'}`}
-              >
+              <button key={m} onClick={() => setLangMode(m)}
+                className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${langMode === m ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
                 {m.toUpperCase()}
               </button>
             ))}
@@ -195,94 +157,79 @@ const Index = () => {
         </div>
 
         <div className="flex gap-2 items-center">
-          <input
-            type="text"
-            value={noteTitle}
-            onChange={(e) => setNoteTitle(e.target.value)}
-            className="text-[11px] px-3 py-1.5 border border-slate-200 rounded-lg w-36 outline-none focus:border-pink-300 font-bold"
-          />
-          <button
-            onClick={handleSave}
-            disabled={saving || !user}
-            className="flex items-center gap-1.5 bg-pink-500 text-white px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-pink-600 transition-all shadow-sm disabled:opacity-50"
-          >
-            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-            저장
+          <input type="text" value={noteTitle} onChange={(e) => setNoteTitle(e.target.value)}
+            className="text-[11px] px-3 py-1.5 border border-border rounded-lg w-36 outline-none focus:border-primary font-bold bg-card text-foreground" />
+          <button onClick={handleSave} disabled={saving || !user}
+            className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-1.5 rounded-xl text-xs font-bold hover:opacity-90 transition-all shadow-sm disabled:opacity-50">
+            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />} 저장
           </button>
-          <button
-            onClick={handleNewNote}
-            className="flex items-center gap-1.5 bg-white border border-slate-200 text-slate-600 px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-50 transition-all"
-          >
+          <button onClick={handleNewNote}
+            className="flex items-center gap-1.5 bg-card border border-border text-foreground px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-muted transition-all">
             새 노트
           </button>
-          <div className="h-4 w-[1px] bg-slate-200" />
-          <button
-            onClick={() => addSection('barre')}
-            className="flex items-center gap-1.5 bg-rose-50 border border-rose-200 text-rose-500 px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition-all shadow-sm"
-          >
+          <div className="h-4 w-[1px] bg-border" />
+          <button onClick={() => addSection('barre')}
+            className="flex items-center gap-1.5 bg-primary/10 border border-primary/20 text-primary px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-primary/20 transition-all shadow-sm">
             <Plus size={14} /> BARRE
           </button>
-          <button
-            onClick={() => addSection('center')}
-            className="flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 text-indigo-500 px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all shadow-sm"
-          >
+          <button onClick={() => addSection('center')}
+            className="flex items-center gap-1.5 bg-secondary border border-border text-secondary-foreground px-4 py-1.5 rounded-xl text-xs font-bold hover:bg-muted transition-all shadow-sm">
             <Plus size={14} /> CENTER
           </button>
-          <div className="h-4 w-[1px] bg-slate-200" />
+          <div className="h-4 w-[1px] bg-border" />
           {user && (
-            <ProfileDropdown
-              user={user}
-              profile={profile}
-              onSignOut={signOut}
-              onExportNotes={exportNotes}
+            <ProfileDropdown user={user} profile={profile} onSignOut={signOut} onExportNotes={exportNotes}
               onResetNotes={async () => { await resetAllNotes(); handleNewNote(); }}
-              onDeleteAccount={deleteAccount}
-              onUpdateNickname={updateNickname}
-              onCheckNickname={checkNicknameAvailable}
-            />
+              onDeleteAccount={deleteAccount} onUpdateNickname={updateNickname} onCheckNickname={checkNicknameAvailable} />
           )}
         </div>
       </header>
 
-      {/* Main */}
+      {/* Main - default layout */}
       <main className="flex flex-1 overflow-hidden pb-14">
-        {/* Left: Vault + Search + Input */}
-        <aside className="w-[32%] overflow-y-auto border-r bg-white p-4 space-y-3">
-          <NotesVault
-            notes={notes}
-            loading={notesLoading}
-            currentNoteId={currentNoteId}
-            onLoad={handleLoadNote}
-            onDelete={deleteNote}
-          />
-          <div className="h-[1px] bg-slate-100" />
-          <SemanticSearch onSelect={handleSearchSelect} />
-          <div className="h-[1px] bg-slate-100" />
-          <TipRotator />
-          <InputPanel
-            appData={appData}
-            setAppData={setAppData}
-            onProcess={processAI}
-            activeSection={activeSection}
-            onSectionFocus={(category, id) => setActiveSection({ category, id })}
-          />
-        </aside>
+        {/* Tablet landscape: show youtube + score 50:50 when youtube is available */}
+        {activeYoutubeUrl && (
+          <div className="hidden landscape-tablet:flex w-full">
+            <div className="w-1/2 p-4 flex items-start justify-center overflow-y-auto bg-card border-r border-border">
+              <div className="w-full max-w-xl">
+                <YouTubeEmbed url={activeYoutubeUrl} />
+              </div>
+            </div>
+            <div className="w-1/2 overflow-y-auto p-6" style={{ backgroundColor: 'hsl(var(--score-bg))' }}>
+              <div id="print-area" ref={scoreRef}>
+                <ScoreRenderer appData={appData} langMode={langMode} onDurationChange={handleDurationChange} />
+              </div>
+            </div>
+          </div>
+        )}
 
-        {/* Right: Score */}
-        <section className="w-[68%] overflow-y-auto p-8 bg-[#fdfafb]">
-          <div className="flex justify-end mb-4">
-            <ExportMenu scoreRef={scoreRef} noteTitle={noteTitle} />
-          </div>
-          <div id="print-area" ref={scoreRef}>
-            <ScoreRenderer appData={appData} langMode={langMode} onDurationChange={handleDurationChange} />
-          </div>
-        </section>
+        {/* Default layout */}
+        <div className={`flex w-full ${activeYoutubeUrl ? 'landscape-tablet:hidden' : ''}`}>
+          <aside className="w-[32%] overflow-y-auto border-r border-border bg-card p-4 space-y-3">
+            <NotesVault notes={notes} loading={notesLoading} currentNoteId={currentNoteId}
+              onLoad={handleLoadNote} onDelete={deleteNote} onToggleFavorite={toggleFavorite} />
+            <div className="h-[1px] bg-border" />
+            <SemanticSearch onSelect={handleSearchSelect} />
+            <div className="h-[1px] bg-border" />
+            <TipRotator />
+            <InputPanel appData={appData} setAppData={setAppData} onProcess={processAI}
+              activeSection={activeSection} onSectionFocus={(category, id) => setActiveSection({ category, id })} />
+          </aside>
+
+          <section className="w-[68%] overflow-y-auto p-8" style={{ backgroundColor: 'hsl(var(--score-bg))' }}>
+            <div className="flex justify-end mb-4">
+              <ExportMenu scoreRef={scoreRef} noteTitle={noteTitle} />
+            </div>
+            <div id="print-area" ref={scoreRef}>
+              <ScoreRenderer appData={appData} langMode={langMode} onDurationChange={handleDurationChange} />
+            </div>
+          </section>
+        </div>
       </main>
 
-      {/* Music Player */}
       <MusicPlayer
-        activeSectionTitle={activeSection ? appData[activeSection.category].find(s => s.id === activeSection.id)?.title : undefined}
-        activeMeter={activeSection ? appData[activeSection.category].find(s => s.id === activeSection.id)?.timeSignature : undefined}
+        activeSectionTitle={activeSec?.title}
+        activeMeter={activeSec?.timeSignature}
       />
     </div>
   );

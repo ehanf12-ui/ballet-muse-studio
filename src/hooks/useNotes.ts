@@ -8,6 +8,7 @@ export interface NoteItem {
   id: string;
   title: string;
   data: AppData;
+  is_favorite: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -33,6 +34,7 @@ export function useNotes(userId: string | undefined) {
         id: d.id,
         title: d.title,
         data: d.data as unknown as AppData,
+        is_favorite: (d as any).is_favorite ?? false,
         created_at: d.created_at,
         updated_at: d.updated_at,
       })));
@@ -71,6 +73,24 @@ export function useNotes(userId: string | undefined) {
       return data?.id ?? null;
     }
   }, [userId, fetchNotes]);
+
+  const toggleFavorite = useCallback(async (noteId: string) => {
+    if (!userId) return;
+    const note = notes.find(n => n.id === noteId);
+    if (!note) return;
+    const newVal = !note.is_favorite;
+    // Optimistic update
+    setNotes(prev => prev.map(n => n.id === noteId ? { ...n, is_favorite: newVal } : n));
+    const { error } = await supabase
+      .from('notes')
+      .update({ is_favorite: newVal } as any)
+      .eq('id', noteId)
+      .eq('user_id', userId);
+    if (error) {
+      toast.error('즐겨찾기 변경 실패');
+      setNotes(prev => prev.map(n => n.id === noteId ? { ...n, is_favorite: !newVal } : n));
+    }
+  }, [userId, notes]);
 
   const deleteNote = useCallback(async (noteId: string) => {
     if (!userId) return;
@@ -116,5 +136,5 @@ export function useNotes(userId: string | undefined) {
     }
   }, [userId]);
 
-  return { notes, loading, fetchNotes, saveNote, deleteNote, exportNotes, resetAllNotes };
+  return { notes, loading, fetchNotes, saveNote, deleteNote, toggleFavorite, exportNotes, resetAllNotes };
 }

@@ -5,37 +5,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @layer base {
-  :root {
+  /* ── Classic Pink (default) ── */
+  :root,
+  .theme-classic-pink {
     --background: 210 20% 97%;
     --foreground: 215 25% 15%;
-
     --card: 0 0% 100%;
     --card-foreground: 215 25% 15%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 15%;
-
     --primary: 330 80% 60%;
     --primary-foreground: 0 0% 100%;
-
     --secondary: 210 15% 96%;
     --secondary-foreground: 215 25% 25%;
-
     --muted: 210 10% 95%;
     --muted-foreground: 215 10% 55%;
-
     --accent: 330 80% 60%;
     --accent-foreground: 0 0% 100%;
-
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
     --border: 210 15% 90%;
     --input: 210 15% 90%;
     --ring: 330 80% 60%;
-
     --radius: 0.5rem;
-
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -44,6 +36,79 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --score-bg: 340 30% 98%;
+    --score-step-bg: 340 100% 97%;
+    --score-step-border: 330 80% 60%;
+  }
+
+  /* ── Midnight Swan ── */
+  .theme-midnight-swan {
+    --background: 225 30% 8%;
+    --foreground: 220 15% 90%;
+    --card: 225 25% 12%;
+    --card-foreground: 220 15% 90%;
+    --popover: 225 25% 14%;
+    --popover-foreground: 220 15% 90%;
+    --primary: 220 70% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 225 20% 16%;
+    --secondary-foreground: 220 15% 80%;
+    --muted: 225 20% 18%;
+    --muted-foreground: 220 10% 55%;
+    --accent: 260 60% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 225 20% 20%;
+    --input: 225 20% 20%;
+    --ring: 220 70% 55%;
+    --radius: 0.5rem;
+    --sidebar-background: 225 25% 10%;
+    --sidebar-foreground: 220 15% 85%;
+    --sidebar-primary: 220 70% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 225 20% 16%;
+    --sidebar-accent-foreground: 220 15% 85%;
+    --sidebar-border: 225 20% 18%;
+    --sidebar-ring: 220 70% 55%;
+    --score-bg: 225 25% 10%;
+    --score-step-bg: 225 25% 16%;
+    --score-step-border: 220 70% 55%;
+  }
+
+  /* ── Forest Giselle ── */
+  .theme-forest-giselle {
+    --background: 40 20% 95%;
+    --foreground: 150 15% 15%;
+    --card: 40 15% 98%;
+    --card-foreground: 150 15% 15%;
+    --popover: 40 15% 98%;
+    --popover-foreground: 150 15% 15%;
+    --primary: 155 40% 38%;
+    --primary-foreground: 40 20% 98%;
+    --secondary: 40 15% 92%;
+    --secondary-foreground: 150 15% 25%;
+    --muted: 40 10% 90%;
+    --muted-foreground: 150 8% 50%;
+    --accent: 155 40% 38%;
+    --accent-foreground: 40 20% 98%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 40 15% 85%;
+    --input: 40 15% 85%;
+    --ring: 155 40% 38%;
+    --radius: 0.5rem;
+    --sidebar-background: 40 15% 96%;
+    --sidebar-foreground: 150 15% 20%;
+    --sidebar-primary: 155 40% 38%;
+    --sidebar-primary-foreground: 40 20% 98%;
+    --sidebar-accent: 40 10% 92%;
+    --sidebar-accent-foreground: 150 15% 20%;
+    --sidebar-border: 40 15% 88%;
+    --sidebar-ring: 155 40% 38%;
+    --score-bg: 40 20% 96%;
+    --score-step-bg: 40 20% 98%;
+    --score-step-border: 155 40% 38%;
   }
 
   .dark {
