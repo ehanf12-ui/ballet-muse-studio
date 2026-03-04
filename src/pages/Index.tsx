@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Plus, Save, Loader2, Music } from 'lucide-react';
 import { AppData, genId } from '@/lib/types';
 import { initBarreTitles, initCenterTitles } from '@/lib/data';
@@ -7,6 +7,7 @@ import InputPanel from '@/components/InputPanel';
 import MusicPlayer from '@/components/MusicPlayer';
 import ScoreRenderer from '@/components/ScoreRenderer';
 import SemanticSearch from '@/components/SemanticSearch';
+import ExportMenu from '@/components/ExportMenu';
 import NotesVault from '@/components/NotesVault';
 import ProfileDropdown from '@/components/ProfileDropdown';
 import { useAuth } from '@/hooks/useAuth';
@@ -42,6 +43,7 @@ function createInitialData(): AppData {
 const Index = () => {
   const [langMode, setLangMode] = useState<LangMode>('both');
   const [appData, setAppData] = useState<AppData>(createInitialData);
+  const scoreRef = useRef<HTMLDivElement>(null);
   const [noteTitle, setNoteTitle] = useState('새 노트');
   const [currentNoteId, setCurrentNoteId] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<{ category: 'barre' | 'center'; id: string } | null>(null);
@@ -268,7 +270,12 @@ const Index = () => {
 
         {/* Right: Score */}
         <section className="w-[68%] overflow-y-auto p-8 bg-[#fdfafb]">
-          <ScoreRenderer appData={appData} langMode={langMode} onDurationChange={handleDurationChange} />
+          <div className="flex justify-end mb-4">
+            <ExportMenu scoreRef={scoreRef} noteTitle={noteTitle} />
+          </div>
+          <div id="print-area" ref={scoreRef}>
+            <ScoreRenderer appData={appData} langMode={langMode} onDurationChange={handleDurationChange} />
+          </div>
         </section>
       </main>
 
