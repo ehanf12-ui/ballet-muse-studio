@@ -48,21 +48,21 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, [fetchProfile]);
 
-  const updateNickname = useCallback(async (nickname: string) => {
+  const updateProfile = useCallback(async (updates: { nickname?: string; avatar_url?: string }) => {
     if (!user) return false;
     const { error } = await supabase
       .from('profiles')
-      .update({ nickname })
+      .update(updates)
       .eq('user_id', user.id);
     if (error) {
       if (error.code === '23505') {
         toast.error('이미 사용 중인 닉네임입니다.');
       } else {
-        toast.error('닉네임 저장에 실패했습니다.');
+        toast.error('프로필 저장에 실패했습니다.');
       }
       return false;
     }
-    toast.success('닉네임이 저장되었습니다.');
+    toast.success('프로필이 저장되었습니다.');
     await fetchProfile(user.id);
     return true;
   }, [user, fetchProfile]);
@@ -92,5 +92,5 @@ export function useAuth() {
     await supabase.auth.signOut();
   };
 
-  return { user, profile, loading, signOut, updateNickname, checkNicknameAvailable, deleteAccount, fetchProfile };
+  return { user, profile, loading, signOut, updateProfile, checkNicknameAvailable, deleteAccount, fetchProfile };
 }

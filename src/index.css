@@ -5,6 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @layer base {
+
   /* ── Classic Pink (default) ── */
   :root,
   .theme-classic-pink {
@@ -39,6 +40,10 @@
     --score-bg: 340 30% 98%;
     --score-step-bg: 340 100% 97%;
     --score-step-border: 330 80% 60%;
+    --update-barre: 330 80% 60%;
+    --update-barre-foreground: 0 0% 100%;
+    --update-center: 330 85% 30%;
+    --update-center-foreground: 0 0% 100%;
   }
 
   /* ── Midnight Swan ── */
@@ -74,6 +79,10 @@
     --score-bg: 225 25% 10%;
     --score-step-bg: 225 25% 16%;
     --score-step-border: 220 70% 55%;
+    --update-barre: 220 70% 55%;
+    --update-barre-foreground: 0 0% 100%;
+    --update-center: 220 80% 25%;
+    --update-center-foreground: 0 0% 100%;
   }
 
   /* ── Forest Giselle ── */
@@ -109,6 +118,10 @@
     --score-bg: 40 20% 96%;
     --score-step-bg: 40 20% 98%;
     --score-step-border: 155 40% 38%;
+    --update-barre: 155 40% 38%;
+    --update-barre-foreground: 40 20% 98%;
+    --update-center: 155 60% 12%;
+    --update-center-foreground: 40 20% 98%;
   }
 
   .dark {
@@ -139,6 +152,10 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --update-barre: 330 80% 60%;
+    --update-barre-foreground: 0 0% 100%;
+    --update-center: 330 85% 30%;
+    --update-center-foreground: 0 0% 100%;
   }
 }
 
@@ -146,6 +163,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', 'Noto Sans KR', sans-serif;
@@ -157,10 +175,12 @@
   body * {
     visibility: hidden;
   }
+
   #print-area,
   #print-area * {
     visibility: visible;
   }
+
   #print-area {
     position: absolute;
     left: 0;
@@ -169,6 +189,7 @@
     padding: 20px;
     background: white;
   }
+
   #print-area::after {
     content: 'Created by Ballet Muse Studio';
     display: block;

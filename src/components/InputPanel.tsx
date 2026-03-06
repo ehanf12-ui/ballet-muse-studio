@@ -1,6 +1,6 @@
 import { Trash2, Loader2, Music, MessageSquare, GripVertical, Mic, MicOff, Youtube } from 'lucide-react';
 import { AppData, SectionData, TimeSignature } from '@/lib/types';
-import { sectionTags } from '@/lib/data';
+import { sectionTags, termMapping } from '@/lib/data';
 import { useState } from 'react';
 import { useVoiceInput } from '@/hooks/useVoiceInput';
 import {
@@ -17,15 +17,16 @@ interface InputPanelProps {
   onProcess: (category: 'barre' | 'center', sectionId: string) => void;
   activeSection?: { category: 'barre' | 'center'; id: string } | null;
   onSectionFocus?: (category: 'barre' | 'center', id: string) => void;
+  langMode?: 'both' | 'kr' | 'fr';
 }
 
 function SortableSection({
-  sec, cat, isActive, tags, memoOpen, voiceListening,
+  sec, cat, isActive, tags, memoOpen, voiceListening, langMode,
   onRemove, onTitleChange, onInputChange, onTimeSignatureChange, onCorrectionChange,
   onToggleMemo, onAppendTag, onProcess, onFocus, onYoutubeChange, onToggleVoice,
 }: {
   sec: SectionData; cat: 'barre' | 'center'; isActive: boolean; tags: string[];
-  memoOpen: boolean; voiceListening: boolean;
+  memoOpen: boolean; voiceListening: boolean; langMode?: 'both' | 'kr' | 'fr';
   onRemove: () => void; onTitleChange: (val: string) => void; onInputChange: (val: string) => void;
   onTimeSignatureChange: () => void; onCorrectionChange: (val: string) => void;
   onToggleMemo: () => void; onAppendTag: (tag: string) => void; onProcess: () => void;
@@ -43,8 +44,9 @@ function SortableSection({
             className={`touch-none p-0.5 rounded text-muted-foreground hover:text-primary transition-colors ${isDragging ? 'cursor-grabbing text-primary' : 'cursor-grab'}`}>
             <GripVertical size={14} />
           </div>
-          <input value={sec.title} onChange={(e) => onTitleChange(e.target.value)}
-            className="text-[13px] font-bold border-none p-0 focus:ring-0 w-1/2 bg-transparent group-hover:text-primary transition-colors outline-none text-foreground" />
+          <span className="text-[13px] font-bold text-foreground max-w-[120px] truncate" title={sec.title}>
+            {langMode === 'fr' ? (termMapping[sec.title] || sec.title) : sec.title}
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <button onClick={(e) => { e.stopPropagation(); onTimeSignatureChange(); }}
@@ -68,7 +70,7 @@ function SortableSection({
           {tags.map(t => (
             <button key={t} onClick={() => onAppendTag(t)}
               className="text-[9px] font-bold px-2 py-0.5 bg-muted text-muted-foreground rounded-md border border-border hover:bg-primary/10 hover:text-primary hover:border-primary/20 transition-all">
-              {t}
+              {langMode === 'fr' ? (termMapping[t] || t) : t}
             </button>
           ))}
         </div>
@@ -102,14 +104,14 @@ function SortableSection({
       )}
 
       <button onClick={onProcess} disabled={sec.loading}
-        className={`w-full mt-2 text-primary-foreground rounded-xl py-2 text-[10px] font-black uppercase tracking-widest active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50 ${cat === 'barre' ? 'bg-primary hover:opacity-90' : 'bg-accent hover:opacity-90'}`}>
+        className={`w-full mt-2 rounded-xl py-2 text-[10px] font-black uppercase tracking-widest active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-50 ${cat === 'barre' ? 'bg-update-barre text-update-barre-foreground hover:opacity-90' : 'bg-update-center text-update-center-foreground hover:opacity-90'}`}>
         {sec.loading ? <Loader2 size={12} className="animate-spin" /> : 'Update'}
       </button>
     </div>
   );
 }
 
-export default function InputPanel({ appData, setAppData, onProcess, activeSection, onSectionFocus }: InputPanelProps) {
+export default function InputPanel({ appData, setAppData, onProcess, activeSection, onSectionFocus, langMode }: InputPanelProps) {
   const [openMemos, setOpenMemos] = useState<Set<string>>(new Set());
   const [listeningId, setListeningId] = useState<string | null>(null);
   const { listening, supported, startListening, stopListening } = useVoiceInput();
@@ -207,6 +209,7 @@ export default function InputPanel({ appData, setAppData, onProcess, activeSecti
                     isActive={activeSection?.category === cat && activeSection?.id === sec.id}
                     tags={tags} memoOpen={openMemos.has(sec.id)}
                     voiceListening={listening && listeningId === sec.id}
+                    langMode={langMode}
                     onRemove={() => removeSection(cat, sec.id)}
                     onTitleChange={(val) => updateTitle(cat, sec.id, val)}
                     onInputChange={(val) => updateInput(cat, sec.id, val)}

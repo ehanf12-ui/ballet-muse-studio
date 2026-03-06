@@ -22,12 +22,12 @@ interface ProfileDropdownProps {
   onExportNotes: () => void;
   onResetNotes: () => Promise<void>;
   onDeleteAccount: () => Promise<void>;
-  onUpdateNickname: (nickname: string) => Promise<boolean>;
+  onUpdateProfile: (updates: { nickname?: string; avatar_url?: string }) => Promise<boolean>;
   onCheckNickname: (nickname: string) => Promise<boolean>;
 }
 
 export default function ProfileDropdown({
-  user, profile, onSignOut, onExportNotes, onResetNotes, onDeleteAccount, onUpdateNickname, onCheckNickname,
+  user, profile, onSignOut, onExportNotes, onResetNotes, onDeleteAccount, onUpdateProfile, onCheckNickname,
 }: ProfileDropdownProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -39,15 +39,18 @@ export default function ProfileDropdown({
   const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture;
   const displayName = profile?.nickname || profile?.display_name || user.user_metadata?.full_name || user.email?.split('@')[0] || '사용자';
 
+  const isCustomAvatar = avatarUrl?.includes('|');
+  const [customEmoji, customBg] = isCustomAvatar ? avatarUrl.split('|') : ['', ''];
+
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-2 rounded-xl px-2 py-1 hover:bg-muted transition-colors outline-none">
-            <Avatar className="h-7 w-7">
-              <AvatarImage src={avatarUrl} alt={displayName} />
-              <AvatarFallback className="text-[10px] font-bold bg-primary/10 text-primary">
-                {displayName.charAt(0).toUpperCase()}
+          <button className="flex items-center gap-2 rounded-xl px-2 py-1 hover:bg-muted transition-colors outline-none border-none ring-0">
+            <Avatar className={`h-7 w-7 ${isCustomAvatar ? customBg : ''}`}>
+              {!isCustomAvatar && <AvatarImage src={avatarUrl} alt={displayName} />}
+              <AvatarFallback className={`text-[12px] font-bold flex items-center justify-center w-full h-full ${isCustomAvatar ? '' : 'bg-primary/10 text-primary'}`}>
+                {isCustomAvatar ? customEmoji : displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <span className="text-xs font-bold text-foreground max-w-[80px] truncate hidden sm:inline">{displayName}</span>
@@ -101,7 +104,7 @@ export default function ProfileDropdown({
       </DropdownMenu>
 
       <ProfileSettingsDialog open={showSettings} onOpenChange={setShowSettings} profile={profile}
-        onUpdateNickname={onUpdateNickname} onCheckNickname={onCheckNickname} />
+        onUpdateProfile={onUpdateProfile} onCheckNickname={onCheckNickname} />
 
       <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} user={user} profile={profile} />
 

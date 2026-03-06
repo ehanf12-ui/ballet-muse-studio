@@ -5,8 +5,8 @@ export const termMapping: Record<string, string> = {
   "롱드잠": "Rond de jambe", "롱드잠 아떼르": "Rond de jambe à terre", "롱드잠 앙 레르": "Rond de jambe en l'air", "그랑 롱드잠": "Grand rond de jambe", "파 드 바스크": "Pas de basque",
   "아다지오": "Adagio", "드벨로뻬 앞": "Développé devant", "드벨로뻬 옆": "Développé à la seconde", "드벨로뻬 뒤": "Développé derrière", "아라베스크": "Arabesque", "애티튜드": "Attitude",
   "그랑바뜨망": "Grand battement", "그랑 바뜨망 앞": "Grand battement devant", "그랑 바뜨망 옆": "Grand battement de côté", "그랑 바뜨망 뒤": "Grand battement derrière", "클로쉬": "En cloche",
-  "왈츠": "Waltz", "발랑세": "Balancé", "왈츠 스텝": "Pas de valse", "피루엣": "Pirouette", "쉐네": "Chaînés",
-  "스몰 알레그로": "Petit Allegro", "그랑 알레그로": "Grand Allegro", "알레그로": "Allegro", "쏘떼": "Sauté", "샹즈망": "Changement", "에샤뻬": "Échappé", "아쌈블레": "Assemblé", "주떼": "Jeté", "시쏜": "Sissonne", "그랑 제떼": "Grand jeté",
+  "왈츠": "Waltz", "발랑세": "Balancé", "왈츠 스텝": "Pas de valse", "피루엣": "Pirouette", "쉐네": "Chaînés", "쑤쑤": "Sous-sus", "파드부레": "Pas de bourrée",
+  "스몰 알레그로": "Petit Allegro", "그랑 알레그로": "Grand Allegro", "알레그로": "Allegro", "쏘떼": "Sauté", "샹즈망": "Changement", "에샤뻬": "Échappé", "아쌈블레": "Assemblé", "주떼": "Jeté", "시쏜": "Sissonne", "그랑 제떼": "Grand jeté", "줴떼 앙 투르낭": "Jeté entrelacé",
   "1번발": "1st Pos.", "2번발": "2nd Pos.", "4번발": "4th Pos.", "5번발": "5th Pos.",
   "오른쪽": "Right", "왼쪽": "Left", "오른": "R", "왼": "L"
 };

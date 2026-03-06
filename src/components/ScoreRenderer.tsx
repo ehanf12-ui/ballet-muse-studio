@@ -12,11 +12,20 @@ interface ScoreRendererProps {
   onDurationChange: (category: 'barre' | 'center', sectionId: string, stepIndex: number, delta: number) => void;
 }
 
+import { termMapping } from '@/lib/data';
+
 function StepContent({ step, langMode, dirInfo }: { step: Step; langMode: LangMode; dirInfo: ReturnType<typeof getDirectionInfo> }) {
-  const meta = [step.side, step.pose, step.repetition > 1 ? `×${step.repetition}` : null].filter(Boolean).join(' ');
+  const translateFr = (text: string) => langMode === 'fr' ? (termMapping[text] || text) : text;
+
+  const meta = [
+    step.side ? translateFr(step.side) : null,
+    step.pose ? translateFr(step.pose) : null,
+    step.repetition > 1 ? `×${step.repetition}` : null
+  ].filter(Boolean).join(' ');
+
   return (
     <>
-      {step.description && <div className="text-[7px] font-bold text-muted-foreground leading-none mb-0.5">{step.description}</div>}
+      {step.description && <div className="text-[7px] font-bold text-muted-foreground leading-none mb-0.5">{translateFr(step.description)}</div>}
       {dirInfo && (
         <div className="text-[7px] font-black text-accent leading-none mb-0.5 flex items-center gap-0.5">
           <span>{dirInfo.abbr}</span><span className="text-[9px]">{dirInfo.arrow}</span>
@@ -24,7 +33,7 @@ function StepContent({ step, langMode, dirInfo }: { step: Step; langMode: LangMo
       )}
       {meta && <div className="text-[7px] font-bold text-muted-foreground leading-none mb-0.5">{meta}</div>}
       <div className="font-bold text-[9px] text-foreground leading-tight truncate">
-        {langMode === 'fr' ? (step.term_fr || step.term_kr) : step.term_kr}
+        {langMode === 'fr' ? (step.term_fr || translateFr(step.term_kr)) : step.term_kr}
       </div>
       {langMode === 'both' && step.term_fr && (
         <div className="text-[7px] text-primary font-bold uppercase truncate">{step.term_fr}</div>
@@ -55,9 +64,6 @@ function ScoreGrid({ section, category, langMode, onDurationChange }: {
     <div className="mb-8 last:mb-0">
       <div className="flex items-center gap-2 mb-2">
         <h3 className="text-[11px] font-black text-foreground uppercase tracking-tighter">{section.title}</h3>
-        <span className="text-[9px] text-muted-foreground font-bold tracking-widest">
-          {totalBeats} {isWaltz ? 'MEASURES' : 'BEATS'}
-        </span>
         {isWaltz && <span className="text-[8px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">🎵 3/4</span>}
       </div>
 
@@ -78,7 +84,7 @@ function ScoreGrid({ section, category, langMode, onDurationChange }: {
             const stepsInMeasure = section.steps.filter(s => (s.measureIndex ?? 1) === measureNum);
             return (
               <div key={beat}
-                className={`flex flex-col min-h-[70px] border-l relative ${isPhraseEnd ? 'border-r-2 border-r-foreground' : ''} border-l-border`}
+                className={`flex flex-col min-h-[52px] border-l relative ${isPhraseEnd ? 'border-r-2 border-r-foreground' : ''} border-l-border`}
                 style={{ backgroundColor: 'hsl(var(--score-bg))' }}>
                 <div className="flex justify-end px-1 py-0.5">
                   <span className="text-[7px] font-black text-muted-foreground/30">{beat <= 8 ? beat : ''}</span>
@@ -93,10 +99,9 @@ function ScoreGrid({ section, category, langMode, onDurationChange }: {
                     const dirInfo = getDirectionInfo(step.direction, step.side);
                     return (
                       <div key={idx}
-                        className="border-l-[3px] rounded-sm p-1 m-[1px] flex flex-col justify-center group min-h-[40px] relative"
-                        style={{ gridColumn: `${bi} / span ${span}`, backgroundColor: 'hsl(var(--score-step-bg))', borderLeftColor: 'hsl(var(--score-step-border))' }}>
+                        className="rounded-sm p-1 m-[1px] flex flex-col justify-center group min-h-[38px] relative"
+                        style={{ gridColumn: `${bi} / span ${span}`, backgroundColor: 'hsl(var(--score-step-bg))' }}>
                         <StepContent step={step} langMode={langMode} dirInfo={dirInfo} />
-                        {step.duration > 1 && <div className="text-[6px] font-black text-primary/50 mt-0.5">{step.duration}beats</div>}
                         <div className="absolute right-0.5 bottom-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={(e) => { e.stopPropagation(); onDurationChange(category, section.id, stepIdx, -1); }} className="w-3 h-3 bg-card border border-primary/30 text-primary rounded flex items-center justify-center text-[8px] hover:bg-primary hover:text-primary-foreground">-</button>
                           <button onClick={(e) => { e.stopPropagation(); onDurationChange(category, section.id, stepIdx, 1); }} className="w-3 h-3 bg-card border border-primary/30 text-primary rounded flex items-center justify-center text-[8px] hover:bg-primary hover:text-primary-foreground">+</button>
@@ -112,22 +117,30 @@ function ScoreGrid({ section, category, langMode, onDurationChange }: {
           const stepAtBeat = section.steps.find(s => s.start_beat === beat);
           const isOutbeatBeat = stepAtBeat?.is_outbeat;
           return (
-            <div key={beat} className={`flex min-h-[60px] border-l relative transition-all ${isPhraseEnd ? 'border-r-2 border-r-foreground' : ''} border-l-border`}>
+            <div key={beat} className={`flex min-h-[48px] border-l relative transition-all ${isPhraseEnd ? 'border-r-2 border-r-foreground' : ''} border-l-border`}>
               <div className={`transition-all duration-200 flex items-center justify-center bg-primary/5 border-r border-dotted border-primary/30 overflow-hidden ${isOutbeatBeat ? 'w-[18px]' : 'w-0'}`}>
                 <span className="text-[7px] font-bold text-primary">&</span>
               </div>
-              <div className="flex-1 relative pb-2 min-h-[55px]">
+              <div className="flex-1 relative min-h-[48px]">
                 <div className="flex justify-end px-1 py-0.5">
                   <span className="text-[7px] font-black text-muted-foreground/30">{beat <= 8 ? beat : ''}</span>
                 </div>
-                {section.steps.filter(s => s.start_beat === beat).map((step, idx) => {
+                {section.steps.filter(s => s.start_beat === beat || (beat % 8 === 1 && beat > s.start_beat && beat < s.start_beat + s.duration)).map((step, idx) => {
                   const stepIdx = section.steps.findIndex(s => s === step);
-                  const widthPercent = step.duration * 100 - 5;
+
+                  const isContinuation = beat > step.start_beat;
+                  const remainingDuration = step.duration - (beat - step.start_beat);
+                  const beatsLeftInRow = 8 - ((beat - 1) % 8);
+                  const visibleDuration = Math.min(remainingDuration, beatsLeftInRow);
+
+                  const widthPercent = visibleDuration * 100 - 5;
                   const dirInfo = getDirectionInfo(step.direction, step.side);
+                  const leftClass = (step.is_outbeat && !isContinuation) ? 'left-[-17px]' : 'left-[1px]';
+
                   return (
-                    <div key={idx}
-                      className={`absolute top-[12px] right-0 border-l-[3px] rounded-sm p-1 shadow-sm z-10 min-h-[38px] flex flex-col justify-center select-none group ${step.is_outbeat ? 'left-[-17px]' : 'left-[1px]'}`}
-                      style={{ width: `calc(${widthPercent}% + ${(step.duration - 1) * 1.5}px)`, zIndex: 30 + beat, backgroundColor: 'hsl(var(--score-step-bg))', borderLeftColor: 'hsl(var(--score-step-border))' }}>
+                    <div key={`${stepIdx}-${beat}`}
+                      className={`absolute top-[5px] right-0 rounded-sm p-1 shadow-sm z-10 min-h-[38px] flex flex-col justify-center select-none group ${leftClass}`}
+                      style={{ width: `calc(${widthPercent}% + ${(visibleDuration - 1) * 1.5}px)`, zIndex: 30 + beat, backgroundColor: 'hsl(var(--score-step-bg))' }}>
                       <StepContent step={step} langMode={langMode} dirInfo={dirInfo} />
                       <div className="absolute right-1 bottom-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button onClick={(e) => { e.stopPropagation(); onDurationChange(category, section.id, stepIdx, -1); }} className="w-3 h-3 bg-card border border-primary/30 text-primary rounded flex items-center justify-center text-[8px] hover:bg-primary hover:text-primary-foreground">-</button>

@@ -13,11 +13,19 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Loader2, Check, X } from 'lucide-react';
 import type { UserProfile } from '@/hooks/useAuth';
 
+export const predefinedAvatars = [
+  { emoji: "🩰", bg: "bg-gradient-to-br from-pink-200 to-rose-300" },
+  { emoji: "🦢", bg: "bg-gradient-to-br from-blue-100 to-cyan-200" },
+  { emoji: "👑", bg: "bg-gradient-to-br from-yellow-100 to-amber-200" },
+  { emoji: "🎀", bg: "bg-gradient-to-br from-purple-200 to-fuchsia-300" },
+  { emoji: "✨", bg: "bg-gradient-to-br from-indigo-200 to-purple-300" },
+];
+
 interface ProfileSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   profile: UserProfile | null;
-  onUpdateNickname: (nickname: string) => Promise<boolean>;
+  onUpdateProfile: (updates: { nickname?: string; avatar_url?: string }) => Promise<boolean>;
   onCheckNickname: (nickname: string) => Promise<boolean>;
 }
 
@@ -25,17 +33,19 @@ export default function ProfileSettingsDialog({
   open,
   onOpenChange,
   profile,
-  onUpdateNickname,
+  onUpdateProfile,
   onCheckNickname,
 }: ProfileSettingsDialogProps) {
   const [nickname, setNickname] = useState('');
   const [checking, setChecking] = useState(false);
   const [available, setAvailable] = useState<boolean | null>(null);
   const [saving, setSaving] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
       setNickname(profile?.nickname || '');
+      setSelectedAvatar(profile?.avatar_url || null);
       setAvailable(null);
     }
   }, [open, profile]);
@@ -57,10 +67,16 @@ export default function ProfileSettingsDialog({
   const handleSave = async () => {
     if (!nickname.trim() || available === false) return;
     setSaving(true);
-    const ok = await onUpdateNickname(nickname.trim());
+    const updates: { nickname?: string; avatar_url?: string } = { nickname: nickname.trim() };
+    if (selectedAvatar) updates.avatar_url = selectedAvatar;
+    const ok = await onUpdateProfile(updates);
     setSaving(false);
     if (ok) onOpenChange(false);
   };
+
+  const displayAvatar = selectedAvatar !== null ? selectedAvatar : profile?.avatar_url;
+  const isCustomAvatar = displayAvatar?.includes('|');
+  const [customEmoji, customBg] = isCustomAvatar ? displayAvatar!.split('|') : ['', ''];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -71,12 +87,29 @@ export default function ProfileSettingsDialog({
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-4 py-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={profile?.avatar_url || ''} />
-            <AvatarFallback className="text-lg font-bold bg-pink-100 text-pink-600">
-              {(profile?.display_name || '?').charAt(0).toUpperCase()}
+          <Avatar className={`h-16 w-16 ${isCustomAvatar ? customBg : ''}`}>
+            {!isCustomAvatar && <AvatarImage src={displayAvatar || ''} />}
+            <AvatarFallback className={`text-2xl font-bold flex items-center justify-center w-full h-full ${isCustomAvatar ? '' : 'bg-pink-100 text-pink-600'}`}>
+              {isCustomAvatar ? customEmoji : (profile?.display_name || '?').charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
+
+          <div className="flex flex-wrap justify-center gap-3 w-full mb-2">
+            {predefinedAvatars.map((avatar, idx) => {
+              const avatarString = `${avatar.emoji}|${avatar.bg}`;
+              const isSelected = selectedAvatar === avatarString || (!selectedAvatar && profile?.avatar_url === avatarString);
+              return (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedAvatar(avatarString)}
+                  className={`w-12 h-12 rounded-full text-2xl flex items-center justify-center transition-all ${avatar.bg} ${isSelected ? 'ring-4 ring-primary ring-offset-2 scale-110 shadow-lg' : 'hover:scale-105 opacity-80 hover:opacity-100 hover:shadow-md'
+                    }`}
+                >
+                  {avatar.emoji}
+                </button>
+              );
+            })}
+          </div>
 
           <p className="text-sm text-muted-foreground">{profile?.email}</p>
 

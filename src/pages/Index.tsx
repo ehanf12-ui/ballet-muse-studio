@@ -48,7 +48,7 @@ const Index = () => {
   const [mobileTab, setMobileTab] = useState<MobileTab>('home');
   const isMobile = useIsMobile();
 
-  const { user, profile, signOut, updateNickname, checkNicknameAvailable, deleteAccount } = useAuth();
+  const { user, profile, signOut, updateProfile, checkNicknameAvailable, deleteAccount } = useAuth();
   const { notes, loading: notesLoading, fetchNotes, saveNote, deleteNote, toggleFavorite, exportNotes, resetAllNotes } = useNotes(user?.id);
 
   useEffect(() => { if (user) fetchNotes(); }, [user, fetchNotes]);
@@ -186,7 +186,7 @@ const Index = () => {
                 ))}
               </div>
               <InputPanel appData={appData} setAppData={setAppData} onProcess={processAI}
-                activeSection={activeSection} onSectionFocus={(category, id) => setActiveSection({ category, id })} />
+                activeSection={activeSection} onSectionFocus={(category, id) => setActiveSection({ category, id })} langMode={langMode} />
               <div className="flex justify-end">
                 <ExportMenu scoreRef={scoreRef} noteTitle={noteTitle} />
               </div>
@@ -220,7 +220,7 @@ const Index = () => {
           {mobileTab === 'profile' && user && (
             <MobileProfileView user={user} profile={profile} onSignOut={signOut} onExportNotes={exportNotes}
               onResetNotes={async () => { await resetAllNotes(); handleNewNote(); }}
-              onDeleteAccount={deleteAccount} onUpdateNickname={updateNickname} onCheckNickname={checkNicknameAvailable} />
+              onDeleteAccount={deleteAccount} onUpdateProfile={updateProfile} onCheckNickname={checkNicknameAvailable} />
           )}
         </main>
 
@@ -279,7 +279,7 @@ const Index = () => {
           {user && (
             <ProfileDropdown user={user} profile={profile} onSignOut={signOut} onExportNotes={exportNotes}
               onResetNotes={async () => { await resetAllNotes(); handleNewNote(); }}
-              onDeleteAccount={deleteAccount} onUpdateNickname={updateNickname} onCheckNickname={checkNicknameAvailable} />
+              onDeleteAccount={deleteAccount} onUpdateProfile={updateProfile} onCheckNickname={checkNicknameAvailable} />
           )}
         </div>
       </header>
@@ -310,7 +310,7 @@ const Index = () => {
             <div className="h-[1px] bg-border" />
             <TipRotator />
             <InputPanel appData={appData} setAppData={setAppData} onProcess={processAI}
-              activeSection={activeSection} onSectionFocus={(category, id) => setActiveSection({ category, id })} />
+              activeSection={activeSection} onSectionFocus={(category, id) => setActiveSection({ category, id })} langMode={langMode} />
           </aside>
 
           <section className="w-[68%] overflow-y-auto p-8" style={{ backgroundColor: 'hsl(var(--score-bg))' }}>

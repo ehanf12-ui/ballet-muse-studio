@@ -69,6 +69,12 @@ export default {
           "step-bg": "hsl(var(--score-step-bg))",
           "step-border": "hsl(var(--score-step-border))",
         },
+        update: {
+          barre: "hsl(var(--update-barre))",
+          "barre-foreground": "hsl(var(--update-barre-foreground))",
+          center: "hsl(var(--update-center))",
+          "center-foreground": "hsl(var(--update-center-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

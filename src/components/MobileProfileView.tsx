@@ -19,12 +19,12 @@ interface MobileProfileViewProps {
   onExportNotes: () => void;
   onResetNotes: () => Promise<void>;
   onDeleteAccount: () => Promise<void>;
-  onUpdateNickname: (nickname: string) => Promise<boolean>;
+  onUpdateProfile: (updates: { nickname?: string; avatar_url?: string }) => Promise<boolean>;
   onCheckNickname: (nickname: string) => Promise<boolean>;
 }
 
 export default function MobileProfileView({
-  user, profile, onSignOut, onExportNotes, onResetNotes, onDeleteAccount, onUpdateNickname, onCheckNickname,
+  user, profile, onSignOut, onExportNotes, onResetNotes, onDeleteAccount, onUpdateProfile, onCheckNickname,
 }: MobileProfileViewProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -36,12 +36,14 @@ export default function MobileProfileView({
   const avatarUrl = profile?.avatar_url || user.user_metadata?.avatar_url || user.user_metadata?.picture;
   const displayName = profile?.nickname || profile?.display_name || user.user_metadata?.full_name || user.email?.split('@')[0] || '사용자';
 
+  const isCustomAvatar = avatarUrl?.includes('|');
+  const [customEmoji, customBg] = isCustomAvatar ? avatarUrl.split('|') : ['', ''];
+
   const MenuItem = ({ icon: Icon, label, onClick, destructive }: { icon: typeof Settings; label: string; onClick: () => void; destructive?: boolean }) => (
     <button
       onClick={onClick}
-      className={`flex items-center gap-3 w-full px-4 py-3 min-h-[48px] text-left rounded-xl transition-colors ${
-        destructive ? 'text-destructive hover:bg-destructive/5' : 'text-foreground hover:bg-muted'
-      }`}
+      className={`flex items-center gap-3 w-full px-4 py-3 min-h-[48px] text-left rounded-xl transition-colors ${destructive ? 'text-destructive hover:bg-destructive/5' : 'text-foreground hover:bg-muted'
+        }`}
     >
       <Icon size={18} />
       <span className="text-sm font-medium">{label}</span>
@@ -52,10 +54,10 @@ export default function MobileProfileView({
     <div className="p-4 space-y-4">
       {/* Profile card */}
       <div className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border">
-        <Avatar className="h-14 w-14">
-          <AvatarImage src={avatarUrl} alt={displayName} />
-          <AvatarFallback className="text-lg font-bold bg-primary/10 text-primary">
-            {displayName.charAt(0).toUpperCase()}
+        <Avatar className={`h-14 w-14 ${isCustomAvatar ? customBg : ''}`}>
+          {!isCustomAvatar && <AvatarImage src={avatarUrl} alt={displayName} />}
+          <AvatarFallback className={`text-xl font-bold flex items-center justify-center w-full h-full ${isCustomAvatar ? '' : 'bg-primary/10 text-primary'}`}>
+            {isCustomAvatar ? customEmoji : displayName.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
@@ -82,9 +84,8 @@ export default function MobileProfileView({
             <button
               key={t}
               onClick={() => setTheme(t)}
-              className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] ${
-                theme === t ? 'bg-primary/10 text-primary border border-primary/30' : 'bg-muted text-muted-foreground border border-transparent'
-              }`}
+              className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all min-h-[44px] ${theme === t ? 'bg-primary/10 text-primary border border-primary/30' : 'bg-muted text-muted-foreground border border-transparent'
+                }`}
             >
               {themeLabels[t]}
             </button>
@@ -108,7 +109,7 @@ export default function MobileProfileView({
       </div>
 
       <ProfileSettingsDialog open={showSettings} onOpenChange={setShowSettings} profile={profile}
-        onUpdateNickname={onUpdateNickname} onCheckNickname={onCheckNickname} />
+        onUpdateProfile={onUpdateProfile} onCheckNickname={onCheckNickname} />
       <FeedbackDialog open={showFeedback} onOpenChange={setShowFeedback} user={user} profile={profile} />
 
       <AlertDialog open={resetDialog} onOpenChange={setResetDialog}>
